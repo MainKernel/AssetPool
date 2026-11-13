@@ -3,9 +3,15 @@ import createClient, { type Middleware } from 'openapi-fetch';
 
 import { tokenStore } from '../features/auth/tokenStore.js';
 
+const apiBaseUrl =
+  typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'null'
+    ? `${window.location.origin}/api`
+    : '/api';
+
 export const apiClient = createClient<paths>({
-  baseUrl: '/api',
+  baseUrl: apiBaseUrl,
   credentials: 'include',
+  fetch: (input: Request) => globalThis.fetch(input),
 });
 
 const authMiddleware: Middleware = {
