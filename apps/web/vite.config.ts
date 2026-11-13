@@ -1,10 +1,24 @@
 import react from '@vitejs/plugin-react';
-import { defineConfig, loadEnv } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig, loadEnv, type PluginOption } from 'vite';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  const plugins: PluginOption[] = [react()];
+
+  if (process.env.ANALYZE === 'true') {
+    plugins.push(
+      visualizer({
+        filename: '../../docs/perf/bundle-stats.html',
+        gzipSize: true,
+        brotliSize: true,
+        open: false,
+      }),
+    );
+  }
+
   return {
-    plugins: [react()],
+    plugins,
     server: {
       port: 5173,
       proxy: {
