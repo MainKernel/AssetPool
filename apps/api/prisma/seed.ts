@@ -49,8 +49,9 @@ async function main() {
   // 1. 10 категорій
   const categories = await Promise.all(CATEGORIES.map((c) => prisma.category.create({ data: c })));
 
-  // 2. 50 користувачів (2 ADMIN + 48 EMPLOYEE)
+  // 2. 50+ користувачів (3 ADMIN + 48 EMPLOYEE)
   const adminHash = await argon2.hash('Admin123!', { type: argon2.argon2id });
+  const simpleAdminHash = await argon2.hash('admin', { type: argon2.argon2id });
   const employeeHash = await argon2.hash('Employee123!', { type: argon2.argon2id });
 
   const usersData: {
@@ -59,6 +60,12 @@ async function main() {
     full_name: string;
     role: Role;
   }[] = [
+    {
+      email: 'admin@admin',
+      password_hash: simpleAdminHash,
+      full_name: 'Адміністратор',
+      role: Role.ADMIN,
+    },
     {
       email: 'admin@assetpool.local',
       password_hash: adminHash,

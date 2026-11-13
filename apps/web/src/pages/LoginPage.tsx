@@ -146,9 +146,9 @@ export function LoginPage() {
                 {...fieldProps}
                 type="password"
                 required
-                minLength={8}
+                minLength={mode === 'register' ? 8 : 1}
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                placeholder="Мінімум 8 символів"
+                placeholder={mode === 'register' ? 'Мінімум 8 символів' : 'Введіть пароль'}
                 value={password}
                 hasError={Boolean(fieldErrors.password)}
                 onChange={(e) => setPassword(e.target.value)}

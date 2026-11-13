@@ -14,10 +14,15 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email('Некоректний формат email').max(255),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[^\s@]+@[^\s@]+$/, 'Некоректний формат email')
+    .max(255),
   password: z
     .string()
-    .min(8, 'Пароль має містити щонайменше 8 символів')
+    .min(1, 'Введіть пароль')
     .max(128, 'Пароль не може перевищувати 128 символів'),
 });
 
