@@ -1,0 +1,68 @@
+name: assetpool
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '5'
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+    logging: *logging
+
+  api:
+    image: ghcr.io/${GHCR_OWNER}/assetpool-api:${IMAGE_TAG:-latest}
+    restart: always
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public
+      RUN_SEED: ${RUN_SEED:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '127.0.0.1:3000:3000'
+    networks:
+      - backend
+      - frontend
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    logging: *logging
+
+  web:
+    image: ghcr.io/${GHCR_OWNER}/assetpool-web:${IMAGE_TAG:-latest}
+    restart: always
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - '127.0.0.1:8080:80'
+    networks:
+      - frontend
+    logging: *logging
+
+networks:
+  backend:
+  frontend:
+
+volumes:
+  pgdata:

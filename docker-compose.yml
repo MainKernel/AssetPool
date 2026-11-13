@@ -1,0 +1,44 @@
+name: assetpool
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-assetpool}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-assetpool}
+      POSTGRES_DB: ${DB_NAME:-it_assets_prod}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-assetpool}:${DB_PASSWORD:-assetpool}@db:5432/${DB_NAME:-it_assets_prod}?schema=public
+      RUN_SEED: ${RUN_SEED:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:
