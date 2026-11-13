@@ -1,6 +1,7 @@
 {
   "name": "assetpool",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@12.18.0",
   "engines": {
     "node": ">=22"
@@ -15,10 +16,26 @@
     "generate": "turbo run generate",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "prepare": "husky",
     "db:up": "docker compose -f docker-compose.dev.yml up -d",
     "db:down": "docker compose -f docker-compose.dev.yml down"
   },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
+    "@assetpool/config": "workspace:*",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "eslint": "^10.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
     "prettier": "^3.10.1",
     "turbo": "^2.11.11",
     "typescript": "^5.9.3"

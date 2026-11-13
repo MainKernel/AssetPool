@@ -1,0 +1,4 @@
+{
+  "extends": "@assetpool/config/tsconfig.react.json",
+  "include": ["src"]
+}

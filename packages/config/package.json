@@ -3,5 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "scripts": {}
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.node.json": "./tsconfig.node.json",
+    "./tsconfig.react.json": "./tsconfig.react.json",
+    "./eslint.base.js": "./eslint.base.js"
+  },
+  "scripts": {
+    "lint": "echo 'config package has no TS sources'",
+    "typecheck": "echo 'config package has no TS sources'"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.0",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.5.0",
+    "typescript-eslint": "^8.58.2"
+  }
 }
