@@ -4,7 +4,13 @@ import express from 'express';
 import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
 
+import { assignmentsRouter } from './modules/assignments/assignments.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
+import { categoriesRouter } from './modules/categories/categories.routes.js';
+import { dashboardRouter } from './modules/dashboard/dashboard.routes.js';
+import { devicesRouter } from './modules/devices/devices.routes.js';
+import { historyRouter } from './modules/history/history.routes.js';
+import { usersRouter } from './modules/users/users.routes.js';
 import { env } from './shared/config/env.js';
 import { prisma } from './shared/db/prisma.client.js';
 import { logger } from './shared/logger/logger.js';
@@ -42,6 +48,12 @@ export function createApp() {
   });
 
   app.use('/api/auth', authRouter);
+  app.use('/api/categories', categoriesRouter);
+  app.use('/api/devices', devicesRouter);
+  app.use('/api/assignments', assignmentsRouter);
+  app.use('/api/users', usersRouter);
+  app.use('/api/history', historyRouter);
+  app.use('/api/dashboard', dashboardRouter);
 
   app.use('/api', notFoundMiddleware);
   app.use(errorHandlerMiddleware);

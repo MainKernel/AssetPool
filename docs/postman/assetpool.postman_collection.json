@@ -1,0 +1,252 @@
+{
+  "info": {
+    "name": "AssetPool API",
+    "description": "Колекція ендпоінтів платформи обліку та розподілу корпоративних ІТ-активів AssetPool",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "accessToken", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/login (Admin)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@assetpool.local\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new.user@assetpool.local\",\n  \"password\": \"Secret123!\",\n  \"full_name\": \"Новий Співробітник\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh"
+          }
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me"
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "GET /categories",
+          "request": { "method": "GET", "url": "{{baseUrl}}/categories" }
+        },
+        {
+          "name": "POST /categories",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Камери\",\n  \"description\": \"Вебкамери та конференц-обладнання\"\n}"
+            },
+            "url": "{{baseUrl}}/categories"
+          }
+        },
+        {
+          "name": "PATCH /categories/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Оновлений опис категорії\"\n}"
+            },
+            "url": "{{baseUrl}}/categories/1"
+          }
+        },
+        {
+          "name": "DELETE /categories/:id",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/categories/11" }
+        }
+      ]
+    },
+    {
+      "name": "Devices",
+      "item": [
+        {
+          "name": "GET /devices",
+          "request": { "method": "GET", "url": "{{baseUrl}}/devices?limit=20" }
+        },
+        {
+          "name": "POST /devices",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dell P2422H\",\n  \"inventory_number\": \"INV-2026-9001\",\n  \"category_id\": 2\n}"
+            },
+            "url": "{{baseUrl}}/devices"
+          }
+        },
+        {
+          "name": "GET /devices/:id",
+          "request": { "method": "GET", "url": "{{baseUrl}}/devices/1" }
+        },
+        {
+          "name": "PATCH /devices/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dell P2422H Updated\"\n}"
+            },
+            "url": "{{baseUrl}}/devices/1"
+          }
+        },
+        {
+          "name": "POST /devices/:id/write-off",
+          "request": { "method": "POST", "url": "{{baseUrl}}/devices/1/write-off" }
+        },
+        {
+          "name": "GET /devices/:id/history",
+          "request": { "method": "GET", "url": "{{baseUrl}}/devices/1/history" }
+        },
+        {
+          "name": "DELETE /devices/:id",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/devices/201" }
+        }
+      ]
+    },
+    {
+      "name": "Assignments",
+      "item": [
+        {
+          "name": "GET /assignments",
+          "request": { "method": "GET", "url": "{{baseUrl}}/assignments?status=PENDING" }
+        },
+        {
+          "name": "POST /assignments",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": 1\n}"
+            },
+            "url": "{{baseUrl}}/assignments"
+          }
+        },
+        {
+          "name": "GET /assignments/:id",
+          "request": { "method": "GET", "url": "{{baseUrl}}/assignments/1" }
+        },
+        {
+          "name": "POST /assignments/:id/issue",
+          "request": { "method": "POST", "url": "{{baseUrl}}/assignments/1/issue" }
+        },
+        {
+          "name": "POST /assignments/issue (Direct)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": 1,\n  \"user_id\": 3\n}"
+            },
+            "url": "{{baseUrl}}/assignments/issue"
+          }
+        },
+        {
+          "name": "POST /assignments/:id/reject",
+          "request": { "method": "POST", "url": "{{baseUrl}}/assignments/1/reject" }
+        },
+        {
+          "name": "POST /assignments/:id/return",
+          "request": { "method": "POST", "url": "{{baseUrl}}/assignments/1/return" }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET /users",
+          "request": { "method": "GET", "url": "{{baseUrl}}/users" }
+        },
+        {
+          "name": "GET /users/me/devices",
+          "request": { "method": "GET", "url": "{{baseUrl}}/users/me/devices" }
+        },
+        {
+          "name": "GET /users/me/assignments",
+          "request": { "method": "GET", "url": "{{baseUrl}}/users/me/assignments" }
+        }
+      ]
+    },
+    {
+      "name": "History & Dashboard",
+      "item": [
+        {
+          "name": "GET /history",
+          "request": { "method": "GET", "url": "{{baseUrl}}/history" }
+        },
+        {
+          "name": "GET /history/export.csv",
+          "request": { "method": "GET", "url": "{{baseUrl}}/history/export.csv" }
+        },
+        {
+          "name": "GET /dashboard/stats",
+          "request": { "method": "GET", "url": "{{baseUrl}}/dashboard/stats" }
+        }
+      ]
+    }
+  ]
+}
