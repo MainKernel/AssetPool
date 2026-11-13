@@ -34,13 +34,6 @@ export function createEslintConfig({ tsconfigRootDir, mode = 'all' } = {}) {
         import: importPlugin,
       },
       rules: {
-        'import/order': [
-          'warn',
-          {
-            alphabetize: { order: 'asc', caseInsensitive: true },
-            'newlines-between': 'always',
-          },
-        ],
         '@typescript-eslint/consistent-type-imports': [
           'error',
           { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
