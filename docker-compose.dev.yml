@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: assetpool-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: assetpool
+      POSTGRES_PASSWORD: assetpool
+      POSTGRES_DB: it_assets_dev
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
+      - ./scripts/db-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U assetpool -d it_assets_dev']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  prism:
+    image: stoplight/prism:5
+    command: mock -h 0.0.0.0 -d /schema/openapi.yaml
+    volumes:
+      - ./packages/schema:/schema:ro
+    ports:
+      - '4010:4010'
+    profiles: ['mock']
+
+volumes:
+  pgdata_dev:
