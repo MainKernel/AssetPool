@@ -1,0 +1,1175 @@
+openapi: 3.1.0
+info:
+  title: AssetPool API
+  version: 1.0.0
+  description: API платформи «Облік ІТ-активів підприємства» (Contract-First, RFC 9457)
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: /api
+    description: Відносний базовий шлях API
+security:
+  - bearerAuth: []
+tags:
+  - name: Health
+    description: Стан сервісу
+  - name: Auth
+    description: Реєстрація, авторизація та оновлення токенів
+  - name: Categories
+    description: Категорії ІТ-активів
+  - name: Devices
+    description: Каталог та управління ІТ-пристроями
+  - name: Users
+    description: Співробітники та їхні пристрої
+  - name: Assignments
+    description: Заявки, транзакційна видача та повернення
+  - name: History
+    description: Журнал руху ІТ-активів
+  - name: Dashboard
+    description: Зведена статистика
+
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      tags: [Health]
+      summary: Перевірка стану сервісу та БД
+      security: []
+      responses:
+        '200':
+          description: Сервіс працює
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /auth/register:
+    post:
+      operationId: registerUser
+      tags: [Auth]
+      summary: Реєстрація нового співробітника
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Користувача зареєстровано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags: [Auth]
+      summary: Авторизація за email та паролем
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Успішна авторизація
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [Auth]
+      summary: Оновлення access-токена за refresh cookie
+      security: []
+      responses:
+        '200':
+          description: Нова пара токенів
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /auth/logout:
+    post:
+      operationId: logoutUser
+      tags: [Auth]
+      summary: Вихід із системи та відкликання refresh-токена
+      responses:
+        '204':
+          description: Сесію завершено
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [Auth]
+      summary: Поточний авторизований користувач
+      responses:
+        '200':
+          description: Профіль користувача
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [Categories]
+      summary: Список категорій обладнання
+      responses:
+        '200':
+          description: Перелік категорій
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      operationId: createCategory
+      tags: [Categories]
+      summary: Створити категорію (ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '201':
+          description: Категорію створено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /categories/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    patch:
+      operationId: updateCategory
+      tags: [Categories]
+      summary: Оновити категорію (ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '200':
+          description: Категорію оновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      operationId: deleteCategory
+      tags: [Categories]
+      summary: Видалити категорію без пристроїв (ADMIN)
+      responses:
+        '204':
+          description: Категорію видалено
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /devices:
+    get:
+      operationId: listDevices
+      tags: [Devices]
+      summary: Каталог пристроїв із фільтрацією та курсорною пагінацією
+      parameters:
+        - name: categoryId
+          in: query
+          description: Фільтр за ID категорії
+          schema:
+            type: integer
+            minimum: 1
+        - name: search
+          in: query
+          description: Пошук за назвою або інвентарним номером
+          schema:
+            type: string
+            maxLength: 100
+        - name: status
+          in: query
+          description: Фільтр за статусом пристрою
+          schema:
+            $ref: '#/components/schemas/DeviceStatus'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Сторінка пристроїв
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicePage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      operationId: createDevice
+      tags: [Devices]
+      summary: Додати новий ІТ-актив (ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceInput'
+      responses:
+        '201':
+          description: Пристрій створено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /devices/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    get:
+      operationId: getDeviceById
+      tags: [Devices]
+      summary: Детальна інформація про пристрій
+      responses:
+        '200':
+          description: Картка пристрою
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      operationId: updateDevice
+      tags: [Devices]
+      summary: Оновити дані пристрою (ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceUpdate'
+      responses:
+        '200':
+          description: Пристрій оновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      operationId: deleteDevice
+      tags: [Devices]
+      summary: Видалити пристрій без історії (ADMIN)
+      responses:
+        '204':
+          description: Пристрій видалено
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /devices/{id}/write-off:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    post:
+      operationId: writeOffDevice
+      tags: [Devices]
+      summary: Списати пристрій (ADMIN)
+      responses:
+        '200':
+          description: Пристрій списано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /devices/{id}/history:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+      - $ref: '#/components/parameters/CursorParam'
+      - $ref: '#/components/parameters/LimitParam'
+    get:
+      operationId: getDeviceHistory
+      tags: [Devices]
+      summary: Історія руху конкретного пристрою (ADMIN)
+      responses:
+        '200':
+          description: Сторінка історії пристрою
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /users/me/devices:
+    get:
+      operationId: getMyDevices
+      tags: [Users]
+      summary: Пристрої, закріплені за поточним співробітником
+      responses:
+        '200':
+          description: Список закріплених пристроїв
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Device'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /users/me/assignments:
+    get:
+      operationId: getMyAssignments
+      tags: [Users]
+      summary: Історія заявок поточного співробітника
+      parameters:
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Сторінка заявок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [Users]
+      summary: Список співробітників для прямої видачі (ADMIN)
+      responses:
+        '200':
+          description: Перелік користувачів
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /assignments:
+    get:
+      operationId: listAssignments
+      tags: [Assignments]
+      summary: Вхідні заявки на видачу (ADMIN)
+      parameters:
+        - name: status
+          in: query
+          description: Статус заявки
+          schema:
+            $ref: '#/components/schemas/AssignmentStatus'
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Сторінка заявок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      operationId: createAssignment
+      tags: [Assignments]
+      summary: Створити електронну заявку на пристрій
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentCreate'
+      responses:
+        '201':
+          description: Заявку створено зі статусом PENDING
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /assignments/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    get:
+      operationId: getAssignmentById
+      tags: [Assignments]
+      summary: Деталі заявки (404 для чужої заявки співробітника)
+      responses:
+        '200':
+          description: Дані заявки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /assignments/{id}/issue:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    post:
+      operationId: issueAssignment
+      tags: [Assignments]
+      summary: Підтвердити видачу пристрою в транзакції з FOR UPDATE (ADMIN)
+      responses:
+        '201':
+          description: Пристрій видано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /assignments/issue:
+    post:
+      operationId: issueDeviceDirect
+      tags: [Assignments]
+      summary: Пряма видача пристрою співробітнику (ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentIssueDirect'
+      responses:
+        '201':
+          description: Пристрій видано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /assignments/{id}/reject:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    post:
+      operationId: rejectAssignment
+      tags: [Assignments]
+      summary: Відхилити заявку (ADMIN)
+      responses:
+        '200':
+          description: Заявку відхилено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /assignments/{id}/return:
+    parameters:
+      - $ref: '#/components/parameters/IdParam'
+    post:
+      operationId: returnAssignment
+      tags: [Assignments]
+      summary: Оформити повернення пристрою на склад (ADMIN)
+      responses:
+        '200':
+          description: Пристрій повернуто
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /history:
+    get:
+      operationId: listHistory
+      tags: [History]
+      summary: Глобальний журнал руху ІТ-активів (ADMIN)
+      parameters:
+        - name: deviceId
+          in: query
+          description: Фільтр за пристроєм
+          schema:
+            type: integer
+            minimum: 1
+        - name: userId
+          in: query
+          description: Фільтр за співробітником
+          schema:
+            type: integer
+            minimum: 1
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Сторінка журналу руху
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /history/export.csv:
+    get:
+      operationId: exportHistoryCsv
+      tags: [History]
+      summary: Експорт журналу руху у форматі CSV (ADMIN)
+      parameters:
+        - name: deviceId
+          in: query
+          description: Фільтр за пристроєм
+          schema:
+            type: integer
+            minimum: 1
+        - name: userId
+          in: query
+          description: Фільтр за співробітником
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: CSV-файл журналу
+          content:
+            text/csv:
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [Dashboard]
+      summary: Зведена статистика для головної сторінки
+      responses:
+        '200':
+          description: Статистика відповідно до ролі
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      description: Числовий ідентифікатор ресурсу
+      schema:
+        type: integer
+        minimum: 1
+    CursorParam:
+      name: cursor
+      in: query
+      description: Курсор пагінації (ID останнього елемента попередньої сторінки)
+      schema:
+        type: integer
+        minimum: 1
+    LimitParam:
+      name: limit
+      in: query
+      description: Кількість записів на сторінку
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  responses:
+    BadRequest:
+      description: Помилка валідації вхідних даних
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://assetpool.local/problems/validation-error
+            title: Validation Error
+            status: 400
+            detail: Перевірте коректність заповнення полів
+            errors:
+              - field: email
+                message: Некоректний формат електронної пошти
+    Unauthorized:
+      description: Неавторизований запит або невірні облікові дані
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://assetpool.local/problems/unauthorized
+            title: Unauthorized
+            status: 401
+            detail: Невірний логін або пароль
+    Forbidden:
+      description: Недостатньо прав доступу
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://assetpool.local/problems/forbidden
+            title: Forbidden
+            status: 403
+            detail: Доступ дозволено лише адміністраторам
+    NotFound:
+      description: Ресурс не знайдено
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://assetpool.local/problems/not-found
+            title: Not Found
+            status: 404
+            detail: Запитуваний ресурс не знайдено
+    Conflict:
+      description: Конфлікт стану або дублювання ресурсу
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://assetpool.local/problems/device-not-available
+            title: Conflict
+            status: 409
+            detail: Пристрій уже видано або недоступний
+    TooManyRequests:
+      description: Перевищено ліміт запитів
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://assetpool.local/problems/rate-limited
+            title: Too Many Requests
+            status: 429
+            detail: Забагато спроб, спробуйте пізніше
+    InternalError:
+      description: Внутрішня помилка сервера
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: https://assetpool.local/problems/internal-error
+            title: Internal Server Error
+            status: 500
+            detail: Внутрішня помилка сервера
+
+  schemas:
+    Role:
+      type: string
+      enum: [EMPLOYEE, ADMIN]
+
+    DeviceStatus:
+      type: string
+      enum: [AVAILABLE, ISSUED, WRITTEN_OFF]
+
+    AssignmentStatus:
+      type: string
+      enum: [PENDING, ACTIVE, RETURNED, REJECTED]
+
+    HealthResponse:
+      type: object
+      required: [status, db]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        db:
+          type: string
+          enum: [up]
+
+    User:
+      type: object
+      required: [id, email, full_name, role, created_at]
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: employee@assetpool.local
+        full_name:
+          type: string
+          example: Олександр Коваленко
+        role:
+          $ref: '#/components/schemas/Role'
+        created_at:
+          type: string
+          format: date-time
+
+    Category:
+      type: object
+      required: [id, name, description]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Ноутбуки
+        description:
+          type: [string, 'null']
+          example: Портативні робочі станції
+        devices_count:
+          type: integer
+          readOnly: true
+          example: 42
+
+    CategoryInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Планшети
+        description:
+          type: [string, 'null']
+          maxLength: 500
+
+    Device:
+      type: object
+      required: [id, name, inventory_number, status, category_id, category, created_at]
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: Lenovo ThinkPad T14 Gen 4
+        inventory_number:
+          type: string
+          example: INV-2026-0042
+        status:
+          $ref: '#/components/schemas/DeviceStatus'
+        category_id:
+          type: integer
+          example: 1
+        category:
+          $ref: '#/components/schemas/Category'
+        created_at:
+          type: string
+          format: date-time
+
+    DeviceInput:
+      type: object
+      required: [name, inventory_number, category_id]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: Dell P2422H
+        inventory_number:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: INV-2026-0201
+        category_id:
+          type: integer
+          minimum: 1
+          example: 2
+
+    DeviceUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        inventory_number:
+          type: string
+          minLength: 1
+          maxLength: 100
+        category_id:
+          type: integer
+          minimum: 1
+        status:
+          $ref: '#/components/schemas/DeviceStatus'
+
+    Assignment:
+      type: object
+      required: [id, user_id, device_id, status, created_at, assigned_at, returned_at]
+      properties:
+        id:
+          type: integer
+          example: 101
+        user_id:
+          type: integer
+          example: 5
+        device_id:
+          type: integer
+          example: 10
+        status:
+          $ref: '#/components/schemas/AssignmentStatus'
+        created_at:
+          type: string
+          format: date-time
+        assigned_at:
+          type: [string, 'null']
+          format: date-time
+        returned_at:
+          type: [string, 'null']
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        device:
+          $ref: '#/components/schemas/Device'
+
+    AssignmentCreate:
+      type: object
+      required: [device_id]
+      properties:
+        device_id:
+          type: integer
+          minimum: 1
+          example: 10
+
+    AssignmentIssueDirect:
+      type: object
+      required: [device_id, user_id]
+      properties:
+        device_id:
+          type: integer
+          minimum: 1
+        user_id:
+          type: integer
+          minimum: 1
+
+    DevicePage:
+      type: object
+      required: [data, nextCursor]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device'
+        nextCursor:
+          type: [integer, 'null']
+          example: 20
+
+    AssignmentPage:
+      type: object
+      required: [data, nextCursor]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
+        nextCursor:
+          type: [integer, 'null']
+          example: 120
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@assetpool.local
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+          example: Admin123!
+
+    RegisterRequest:
+      type: object
+      required: [email, password, full_name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 255
+
+    AuthResponse:
+      type: object
+      required: [access_token, token_type, expires_in, user]
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          enum: [Bearer]
+        expires_in:
+          type: integer
+          example: 900
+        user:
+          $ref: '#/components/schemas/User'
+
+    DashboardStats:
+      type: object
+      required: [role]
+      properties:
+        role:
+          $ref: '#/components/schemas/Role'
+        devices_available:
+          type: integer
+        devices_issued:
+          type: integer
+        devices_written_off:
+          type: integer
+        pending_requests:
+          type: integer
+        issued_last_30_days:
+          type: integer
+        my_devices_count:
+          type: integer
+        my_pending_count:
+          type: integer
+        recent_assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
+
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        request_id:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field:
+                type: string
+              message:
+                type: string

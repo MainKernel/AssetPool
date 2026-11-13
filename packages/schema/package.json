@@ -3,11 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./openapi.yaml": "./openapi.yaml"
+  },
   "scripts": {
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "generate": "openapi-typescript openapi.yaml -o src/generated/types.ts",
+    "lint": "redocly lint openapi.yaml && eslint .",
+    "typecheck": "tsc --noEmit",
+    "mock": "prism mock openapi.yaml -p 4010 --dynamic",
+    "docs": "redocly build-docs openapi.yaml -o dist/index.html"
   },
   "devDependencies": {
-    "@assetpool/config": "workspace:*"
+    "@assetpool/config": "workspace:*",
+    "@redocly/cli": "^2.77.0",
+    "@stoplight/prism-cli": "^5.16.0",
+    "openapi-typescript": "^7.13.0"
   }
 }

@@ -93,3 +93,4 @@ export function createEslintConfig({ tsconfigRootDir, mode = 'all' } = {}) {
   if (mode === 'react') return [...baseTs, webBlock];
   return [...baseTs, nodeBlock, webBlock];
 }
+

@@ -12,3 +12,4 @@ export default [
   },
   ...createEslintConfig({ tsconfigRootDir: import.meta.dirname }),
 ];
+
