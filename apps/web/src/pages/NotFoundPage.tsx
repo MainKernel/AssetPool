@@ -1,26 +1,27 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { GlassPanel } from '../components/GlassPanel.js';
+import { GlassPanel } from '../components/index.js';
+import styles from './Pages.module.css';
 
-export default function NotFoundPage() {
+export function NotFoundPage() {
   useEffect(() => {
     document.title = 'Сторінку не знайдено — AssetPool';
   }, []);
 
   return (
-    <div style={{ padding: 'var(--space-5)', maxWidth: '480px', margin: '4rem auto' }}>
-      <GlassPanel>
-        <h1 style={{ fontSize: '1.5rem', marginBottom: 'var(--space-2)' }}>
-          404 — Сторінку не знайдено
-        </h1>
-        <p style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-3)' }}>
-          Запитана сторінка не існує або була переміщена.
+    <div style={{ padding: 'var(--space-6) 0' }}>
+      <GlassPanel style={{ padding: 'var(--space-5)', textAlign: 'center' }}>
+        <h1 className={styles.pageTitle}>404 — Сторінку не знайдено</h1>
+        <p className={styles.pageSubtitle} style={{ marginBottom: 'var(--space-4)' }}>
+          Запитана адреса не існує або була видалена.
         </p>
-        <Link to="/" style={{ color: 'var(--accent)', fontWeight: 500 }}>
-          Повернутися на головну →
+        <Link to="/" className={styles.inlineLink}>
+          На головну
         </Link>
       </GlassPanel>
     </div>
   );
 }
+
+export default NotFoundPage;
