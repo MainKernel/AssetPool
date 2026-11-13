@@ -1,0 +1,18 @@
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  padding: var(--space-4);
+}
+
+.strong {
+  background: var(--surface-strong);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .panel {
+    background: var(--surface-strong);
+  }
+}

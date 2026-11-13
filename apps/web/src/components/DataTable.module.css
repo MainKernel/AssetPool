@@ -1,0 +1,51 @@
+.wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  backdrop-filter: blur(var(--blur));
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9375rem;
+}
+
+.th,
+.td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+  background: rgba(15, 25, 28, 0.55);
+}
+
+.th:first-child,
+.td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #132227;
+}
+
+.th:first-child {
+  z-index: 2;
+}
+
+.tbodyTr:hover .td {
+  background: rgba(135, 183, 193, 0.08);
+}
+
+.tbodyTr:last-child .td {
+  border-bottom: 0;
+}
