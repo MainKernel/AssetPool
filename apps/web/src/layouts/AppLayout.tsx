@@ -22,16 +22,16 @@ export interface AppLayoutProps {
 const DEFAULT_NAV_BY_ROLE: Record<'ADMIN' | 'EMPLOYEE', NavItem[]> = {
   EMPLOYEE: [
     { to: '/', label: 'Головна' },
-    { to: '/devices', label: 'Каталог пристроїв' },
+    { to: '/catalog', label: 'Каталог пристроїв' },
     { to: '/my-devices', label: 'Мої пристрої' },
-    { to: '/my-requests', label: 'Мої заявки' },
   ],
   ADMIN: [
     { to: '/', label: 'Головна' },
-    { to: '/devices', label: 'Каталог пристроїв' },
-    { to: '/assignments', label: 'Заявки на видачу' },
-    { to: '/categories', label: 'Категорії' },
-    { to: '/history', label: 'Історія руху' },
+    { to: '/catalog', label: 'Каталог пристроїв' },
+    { to: '/admin/requests', label: 'Заявки на видачу' },
+    { to: '/admin/assets', label: 'Управління активами' },
+    { to: '/admin/categories', label: 'Категорії' },
+    { to: '/admin/history', label: 'Історія руху' },
   ],
 };
 
