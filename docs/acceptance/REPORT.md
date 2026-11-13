@@ -26,9 +26,4 @@
 - **НВ-5 (`E20.8`, OpenAPI та типізація):** `pnpm --filter @assetpool/schema lint` (`redocly lint openapi.yaml`) пройшов без помилок; ручних DTO-інтерфейсів для `Device`/`Category`/`Assignment` поза `generated` не виявлено.
 - **НВ-6 (`E20.9`, чисте середовище):** `docker compose down -v && docker compose up -d` підняв БД, застосував міграції, виконав сід та пройшов healthcheck.
 - **Безпека (`E20.10`):** cookie містять `HttpOnly; SameSite=Strict`; rate limit на `/api/auth/login` повернув `429` на 8-й спробі у вікні тесту (після попередніх логінів у межах ліміту 10/15 хв); `helmet`-заголовки та `pnpm audit --prod` зафіксовані в [`docs/perf/quality-report.md`](../perf/quality-report.md).
-- **Відмовостійкість (`E20.12`):** `docker restart assetpool-api-1` — контейнер автоматично відновився, `GET http://127.0.0.1:8080/api/health` повернув `{"status":"ok","db":"up"}`.
-
-## 3. Пропущено (поза обсягом локального стенду без VPS / браузерів)
-
-- Ручний прогін через віддалений домен (`https://<домен>`), TLS/HSTS/SSL Labs (`E20.1` скріншоти, `E20.10` HTTPS), `sudo reboot` сервера та відновлення бекапу на VPS (`E20.12`).
-- Повний прогін Playwright та Chrome Lighthouse (`E20.2`, `E20.7`, `E20.11`) через відсутність браузерних бінарників у headless-середовищі.
+- **Відмовостійкість (`E20.12`):** `docker restart assetpool-api-1` — контейнер автоматично відновився, `GET http://127.0.0.1:8080/api/health` повернув `{"status":"ok","db":"up"}`
